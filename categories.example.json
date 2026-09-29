@@ -1,0 +1,7 @@
+{
+  "_aide": "Copiez ce fichier en categories.json. Mots-clés en majuscules sans accents, comparés mot à mot au libellé bancaire ; un * final accepte la suite du mot (CRECHE* couvre CRECHES). Vos règles passent avant celles par défaut. Une catégorie dont le nom commence par « Revenus » compte comme revenu.",
+  "Enfants": ["CRECHE*", "NOUNOU", "CANTINE*", "PERISCOLAIRE"],
+  "Animaux": ["VETERINAIRE*", "CLINIQUE VETERINAIRE", "ZOOPLUS", "MAXI ZOO"],
+  "Revenus locatifs": ["LOCATAIRE", "LOYER APPARTEMENT LYON"],
+  "Épargne & virements internes": ["COMPTE JOINT"]
+}

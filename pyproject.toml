@@ -1,0 +1,32 @@
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "sg-report"
+version = "0.1.0"
+description = "Rapport hebdomadaire des comptes Société Générale via Open Banking (Enable Banking), pour OpenClaw et Home Assistant."
+readme = "README.md"
+requires-python = ">=3.11"
+dependencies = []
+
+[project.optional-dependencies]
+dev = ["pytest>=8", "ruff>=0.6"]
+
+[project.scripts]
+sg-report = "sg_report.cli:main"
+
+[tool.setuptools.packages.find]
+include = ["sg_report*"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+
+[tool.ruff]
+line-length = 100
+target-version = "py311"
+
+[tool.ruff.lint]
+select = ["E", "F", "W", "I", "B", "UP", "SIM"]
+# La longueur est gérée par `ruff format` ; les messages utilisateur restent sur une ligne.
+ignore = ["E501"]

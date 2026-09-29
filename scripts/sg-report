@@ -1,0 +1,7 @@
+#!/usr/bin/env bash
+# Point d'entrée de la CLI : scripts/sg-report <commande> [options], voir --help.
+set -euo pipefail
+ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
+export PYTHONPATH="$ROOT${PYTHONPATH:+:$PYTHONPATH}"
+export SG_REPORT_COMMAND="$ROOT/scripts/sg-report"
+exec "${PYTHON:-python3}" -m sg_report "$@"

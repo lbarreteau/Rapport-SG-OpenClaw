@@ -1,0 +1,70 @@
+# Rapport hebdomadaire Société Générale, préparé par OpenClaw et envoyé sur Telegram.
+#
+# Installation :
+#   1. Copiez ce fichier dans /config/packages/sg_report.yaml
+#   2. Activez les packages dans /config/configuration.yaml si ce n'est pas déjà fait :
+#        homeassistant:
+#          packages: !include_dir_named packages
+#   3. Ajoutez les entrées de secrets.example.yaml à /config/secrets.yaml
+#   4. Redémarrez Home Assistant, puis testez avec le script « Rapport SG maintenant ».
+#
+# L'add-on OpenClaw utilisant le réseau de l'hôte, sa passerelle répond sur 127.0.0.1:18789.
+
+rest_command:
+  openclaw_sg_report:
+    url: "http://127.0.0.1:18789/hooks/agent"
+    method: post
+    content_type: "application/json"
+    headers:
+      Authorization: !secret openclaw_hooks_authorization
+    timeout: 30
+    # OpenClaw répond dès que la demande est acceptée ; le rapport arrive ensuite sur Telegram.
+    # Pour ne recevoir que la notification Home Assistant (REPORT_CHANNEL=ha), mettez "deliver": false.
+    payload: >-
+      {{ {
+        "name": "Rapport SG hebdo",
+        "agentId": "main",
+        "message": "Utilise le skill sg-report : exécute le rapport hebdomadaire Société Générale et réponds uniquement avec le rapport, sans le reformuler.",
+        "deliver": true,
+        "channel": "telegram",
+        "to": telegram_chat_id | string,
+        "timeoutSeconds": 300
+      } | to_json }}
+
+script:
+  sg_report_now:
+    alias: "Rapport SG maintenant"
+    description: "Demande à OpenClaw le rapport Société Générale, envoyé sur Telegram."
+    icon: mdi:bank
+    mode: single
+    sequence:
+      - action: rest_command.openclaw_sg_report
+        data:
+          telegram_chat_id: !secret sg_report_telegram_chat_id
+        response_variable: openclaw
+      - if:
+          - condition: template
+            value_template: "{{ openclaw['status'] != 200 }}"
+        then:
+          - action: persistent_notification.create
+            data:
+              notification_id: sg_report_error
+              title: "Rapport SG : OpenClaw a refusé la demande"
+              message: >-
+                HTTP {{ openclaw['status'] }} : {{ openclaw['content'] }}.
+                Vérifiez hooks.enabled et le jeton dans openclaw.json, et le secret
+                openclaw_hooks_authorization (« Bearer » suivi du jeton).
+
+automation:
+  - id: sg_report_weekly
+    alias: "Rapport hebdo Société Générale"
+    description: "Chaque dimanche à 18 h, OpenClaw prépare le rapport de dépenses et l'envoie sur Telegram."
+    mode: single
+    triggers:
+      - trigger: time
+        at: "18:00:00"
+    conditions:
+      - condition: time
+        weekday: sun
+    actions:
+      - action: script.sg_report_now

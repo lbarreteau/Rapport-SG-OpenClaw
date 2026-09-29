@@ -1,0 +1,18 @@
+// Clés à fusionner dans /config/.openclaw/openclaw.json (terminal de l'add-on OpenClaw),
+// puis redémarrez l'add-on.
+{
+  skills: {
+    load: {
+      // Dossier des skills du dépôt cloné dans /config/sg-report.
+      extraDirs: ["/config/sg-report/skills"],
+    },
+  },
+  hooks: {
+    enabled: true,
+    // Générez-le avec : openssl rand -hex 32
+    // Il doit être différent de gateway.auth.token.
+    token: "remplacez-par-le-jeton-des-webhooks",
+    path: "/hooks",
+    allowedAgentIds: ["main"],
+  },
+}
